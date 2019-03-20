@@ -36,7 +36,7 @@ dot_data = tree.export_graphviz(clf, out_file=None,
                                 filled=True, rounded=True,
                                 special_characters=True)
 graph = graphviz.Source(dot_data)
-graph.render("test", view=True)
+graph.render("tree", view=True)
 
 testData = pd.read_csv("TestDT.csv", encoding="GB2312")  # 使用pandas加载测试集
 testData = testData.drop(columns=["SSIDLabel"])  # 去除无用的SSID列
