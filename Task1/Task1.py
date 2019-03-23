@@ -1,13 +1,15 @@
 from math import log
 
 
+# 决策树
+
 class Tree:
 
     def __init__(self):
-        self.endNode = False
-        self.decisionFeature = -1;
-        self.featureDecision = {}
-        self.decision = ""
+        self.endNode = False  # 是否为叶子节点
+        self.decisionFeature = -1;  # 标记当前节点判断的属性
+        self.featureDecision = {}  # 使用字典记录属性各个取值所对应的子节点
+        self.decision = ""  # 若为叶子节点则记录当前分类标签
 
     def createTree(self, datas, features):
         if len(features) == 0:
@@ -48,14 +50,15 @@ class Tree:
         #     tree += " -> "
         #     tree += self.createTree(selectedDatas[i], leftFetures).replace("\n", "\n\t")  # 递归划分属性
         # return tree
-        for i in range(len(selectedDatas)):
+        for i in range(len(selectedDatas)):  # 遍历该属性每个取值，生成子节点
             self.decisionFeature = selectedFeature
             self.endNode = False
             tmp = Tree()
-            self.featureDecision[list(selectedFeatures.keys())[i]] = tmp.createTree(selectedDatas[i], leftFetures)
+            self.featureDecision[list(selectedFeatures.keys())[i]] = \
+                tmp.createTree(selectedDatas[i], leftFetures)  # 递归生成决策树
         return self
 
-    # 计算信息增益，并返回相应属性划分后的样本
+    # 根据所提供的属性计算信息增益，并返回相应属性划分后的样本
     def calGain(self, datas, feature):
         size = len(datas)
         ent = self.calEnt(datas)
