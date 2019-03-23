@@ -1,7 +1,7 @@
 from math import log
 
 
-# 决策树
+# 决策树作业 No.1
 
 class Tree:
 
