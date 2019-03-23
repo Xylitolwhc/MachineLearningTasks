@@ -2,7 +2,7 @@ from sklearn import tree
 import pandas as pd
 import graphviz
 
-# 决策树
+# 决策树 No.2
 # 读取并处理训练集
 data = pd.read_csv("TrainDT.csv", encoding="GB2312")  # 使用pandas加载训练集文件
 data = data.drop(columns=["SSIDLabel"])  # 去除无用的SSID列
