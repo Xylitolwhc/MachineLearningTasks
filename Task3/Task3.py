@@ -30,13 +30,6 @@ with open("train_labels.txt") as trainLabelFile:
             break
         trainLabels.append(int(line))
 
-clf = tree.DecisionTreeClassifier(  # 定义决策树分类器
-    criterion="gini",  # 使用基尼系数作为信息增益的计算标准
-    splitter="best",  # 在特征的所有划分点中找出最优的划分点
-    min_impurity_decrease=0.0004,  # 设置节点信息增益阈值，当小于此值时即停止划分节点
-    max_features=None);  # 划分时考虑所有特征，计算量大，耗时更长
-clf = clf.fit(trainDatas, trainLabels)
-
 # 获取需要预测的样本
 testDatas = []
 with open("test_data.txt") as testDatasFile:
@@ -51,12 +44,22 @@ with open("test_data.txt") as testDatasFile:
         testDatas.append(data)
 testDatas = pd.DataFrame(testDatas).reindex(columns=range(10000)).fillna(0)
 
-testlabels = clf.predict(testDatas)
-# 将预测值写入文本文件
-with open("test_labels.txt", "w") as testLabelsFile:
-    for label in testlabels:
-        testLabelsFile.write(str(label))
-        testLabelsFile.write("\n")
+for i in range(10):
+    min_impurity_decrease = 0.0002 + i * 0.00002
+    clf = tree.DecisionTreeClassifier(  # 定义决策树分类器
+        criterion="gini",  # 使用基尼系数作为信息增益的计算标准
+        splitter="best",  # 在特征的所有划分点中找出最优的划分点
+        min_impurity_decrease=min_impurity_decrease,  # 设置节点信息增益阈值，当小于此值时即停止划分节点
+        max_features=None)  # 划分时考虑所有特征，计算量大，耗时更长
+    clf = clf.fit(trainDatas, trainLabels)
+
+    testLabels = clf.predict(testDatas)
+    # 将预测值写入文本文件,共10次
+    fileName = ""
+    with open(fileName + str(i + 1) + ".txt", "w") as testLabelsFile:
+        for label in testLabels:
+            testLabelsFile.write(str(label))
+            testLabelsFile.write("\n")
 
 endTime = datetime.datetime.now()
 print((endTime - startTime).seconds)  # 输出运行时间
