@@ -1,12 +1,13 @@
 from sklearn import tree
 from sklearn.model_selection import train_test_split
 import pandas as pd
-import graphviz
 from sklearn import svm
 import datetime
 
+# 决策树作业 No.3
 startTime = datetime.datetime.now()
 
+#
 trainDatas = []
 with open("train_data.txt") as trainDatasFile:
     while True:
@@ -27,18 +28,6 @@ with open("train_labels.txt") as trainLabelFile:
         if not line:
             break
         trainLabes.append(int(line))
-'''
-X_train, X_test, Y_train, Y_test = train_test_split(trainDatas, trainLabes, test_size=0.1, random_state=None)
-for j in range(20):
-    minImpurityDecrease = 0.00005 * j
-    clf = tree.DecisionTreeClassifier(  # 定义决策树分类器
-        criterion="gini",  # 使用基尼系数作为信息增益的计算标准
-        splitter="best",  # 在特征的所有划分点中找出最优的划分点
-        min_impurity_decrease=minImpurityDecrease,  # 设置节点信息增益阈值，当小于此值时即停止划分节点
-        max_features=None);  # 划分时最多考虑(√N)个特征
-    clf.fit(X_train, Y_train)
-    print("%.5f" % minImpurityDecrease, ":", "%.5f" % clf.score(X_test,Y_test))
-'''
 
 clf = tree.DecisionTreeClassifier(  # 定义决策树分类器
     criterion="gini",  # 使用基尼系数作为信息增益的计算标准
@@ -47,20 +36,6 @@ clf = tree.DecisionTreeClassifier(  # 定义决策树分类器
     max_features=None);  # 划分时考虑所有特征，计算量大，耗时更长
 clf = clf.fit(trainDatas, trainLabes)
 
-# clf = svm.SVC(kernel='linear').fit(X_train, Y_train)
-# print(clf.score(X_test, Y_test))
-
-'''
-# 将决策树图形化
-featureNames = ["Negative", "Positive"]
-dot_data = tree.export_graphviz(clf, out_file=None,
-                                feature_names=trainDatas.columns.tolist(),
-                                class_names=featureNames,
-                                filled=True, rounded=True,
-                                special_characters=True)
-graph = graphviz.Source(dot_data)
-graph.render("tree", view=True)
-'''
 '''
 # 获取需要预测的样本
 testDatas = []

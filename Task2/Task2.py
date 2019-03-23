@@ -52,7 +52,6 @@ while (True):
     tmp = testData.loc[testData['finLabel'] == i + 1]  # 取出第(i+1)时刻被采集到的所有样本
     for line in tmp.values:
         BSSID = line[0]
-        # if BSSID in BSSIDLabels:
         BSSIDs[BSSID] = line[1]  # 将属性和取值转换为字典
     if len(BSSIDs) != 0:
         testDatas.append(BSSIDs)  # 记录样本属性及取值
