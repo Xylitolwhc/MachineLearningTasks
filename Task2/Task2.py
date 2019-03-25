@@ -22,7 +22,6 @@ while (True):
         break
 
 trainDatas = pd.DataFrame(trainDatas).fillna(-100)  # 将列表转换为数据帧，并填充缺失值为-100
-BSSIDLabels = trainDatas.columns.tolist()  # 取出列名
 
 # 训练模型
 clf = tree.DecisionTreeClassifier(  # 定义决策树分类器
@@ -61,6 +60,7 @@ while (True):
         break
 
 testDatas = pd.DataFrame(testDatas)  # 转换为数据帧
+BSSIDLabels = trainDatas.columns.tolist()  # 取出训练集列名
 testDatas = testDatas.reindex(columns=BSSIDLabels).fillna(-100)  # 重新建立列索引，保证与训练集相同，并填充缺失值为-100
 
 # 输出模型预测精度
