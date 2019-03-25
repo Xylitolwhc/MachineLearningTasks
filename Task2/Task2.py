@@ -64,4 +64,4 @@ BSSIDLabels = trainDatas.columns.tolist()  # 取出训练集列名
 testDatas = testDatas.reindex(columns=BSSIDLabels).fillna(-100)  # 重新建立列索引，保证与训练集相同，并填充缺失值为-100
 
 # 输出模型预测精度
-print(clf.score(testDatas, testLabels), "%")
+print(clf.score(testDatas, testLabels) * 100, "%")
