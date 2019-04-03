@@ -176,6 +176,6 @@ venv.bak/
 out
 gen
 .idea/vcs.xml
-Task2/tree
-Task2/tree.pdf
-Task3/test_labels.txt
+DecisionTree/Task2/tree
+DecisionTree/Task2/tree.pdf
+DecisionTree/Task3/test_labels.txt
