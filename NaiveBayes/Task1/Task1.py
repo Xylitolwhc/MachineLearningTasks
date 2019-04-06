@@ -28,9 +28,6 @@ def bagOfWords2VecMN(vocabList, inputSet):
     return returnVec
 
 
-import sklearn.naive_bayes
-
-
 def createWordsBag():
     fileTexts = []
     for i in range(25):
