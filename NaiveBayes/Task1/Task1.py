@@ -36,7 +36,7 @@ def createWordsBag():
     for i in range(25):
         num = i + 1
         fileString = ""
-        with open("spam/" + str(num) + ".txt", "r") as f:
+        with open("spam/" + str(num) + ".txt", "r", encoding="iso-8859-1") as f:
             while (True):
                 line = f.readline().replace("\r", "")
                 if not line:
@@ -44,7 +44,7 @@ def createWordsBag():
                 fileString += line
             fileTexts.append(textParse(fileString))
         fileString = ""
-        with open("ham/" + str(num) + ".txt", "r") as f:
+        with open("ham/" + str(num) + ".txt", "r", encoding="iso-8859-1") as f:
             while (True):
                 line = f.readline()
                 if not line:
