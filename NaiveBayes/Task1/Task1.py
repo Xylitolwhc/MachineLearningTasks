@@ -1,3 +1,4 @@
+# 贝叶斯网络作业 No.1
 def textParse(bigString):  # input is big string, #output is word list
     """
         接受一个大字符串并将其解析为字符串列表。该函数去掉少于两个字符的字符串，并将所有字符串转换为小写。
@@ -62,7 +63,7 @@ from sklearn.model_selection import train_test_split
 def main():
     trainVectors = createWordsBag()
     trainLabels = [0, 1] * 25
-    nb = MultinomialNB()
+    nb = MultinomialNB(alpha=1.0)
     X_train, X_test, Y_train, Y_test = train_test_split(trainVectors, trainLabels, test_size=0.15, random_state=None)
     nb.fit(X_train, Y_train)
     print(nb.score(X_test, Y_test))
