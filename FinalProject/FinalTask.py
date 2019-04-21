@@ -46,7 +46,7 @@ def __main__():
     sector3_5 = data[columns]
 
     features = sector3_5
-
+    '''
     model = MLPRegressor(solver='lbfgs', hidden_layer_sizes=(50, 50, 50, 50), tol=1e-6, max_iter=1000)
     print("%-25s" % "MLPRegressor:", end="")
     test(model, features, x, y)
@@ -74,6 +74,19 @@ def __main__():
     model = neighbors.KNeighborsRegressor()
     print("%-25s" % "KNeighborsRegressor:", end="")
     test(model, features, x, y)
+    '''
+
+    test = pd.read_csv("./testAll.csv")
+    reg = RandomForestRegressor(n_estimators=200)
+    reg = reg.fit(features, x)
+    predict_x = reg.predict(test)
+    reg = RandomForestRegressor(n_estimators=200)
+    reg = reg.fit(features, y)
+    predict_y = reg.predict(test)
+    with open("./test_labels.csv", "w") as file:
+        file.write("id,x,y\n")
+        for i in range(len(predict_x)):
+            file.write(str(i) + "," + str("%.3f" % predict_x[i]) + "," + str("%.3f" % predict_y[i]) + "\n")
 
 
 if __name__ == '__main__':
