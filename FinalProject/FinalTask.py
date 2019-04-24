@@ -7,6 +7,7 @@ from sklearn.neural_network import MLPRegressor, MLPClassifier
 import numpy as np
 import copy
 import math
+import random
 
 
 def accuracy(original_x, predict_x, original_y, predict_y):
@@ -83,22 +84,7 @@ def train(model, x, y):
     return Y_test, model.predict(X_test)
 
 
-def __main__():
-    data = pd.read_csv("./dataAll.csv")
-    x = data['x']
-    y = data['y']
-    x_y = data[['x', 'y']]
-    columns = []
-    for i in range(15):
-        columns.append("2100" + str(i))
-    sector2_1 = data[columns]
-    columns = []
-    for i in range(15):
-        columns.append("3500" + str(i))
-    sector3_5 = data[columns]
-
-    features = sector3_5
-    '''
+def model_test(features, x, y):
     model = MLPRegressor(solver='lbfgs', hidden_layer_sizes=(50, 50, 50, 50), tol=1e-6, max_iter=1000)
     print("%-25s" % "MLPRegressor:", end="")
     test(model, features, x, y)
@@ -126,8 +112,9 @@ def __main__():
     model = neighbors.KNeighborsRegressor()
     print("%-25s" % "KNeighborsRegressor:", end="")
     test(model, features, x, y)
-    '''
-    '''
+
+
+def save_predict(features, x, y):
     test = pd.read_csv("./testAll.csv")
     reg = RandomForestRegressor(n_estimators=200)
     reg = reg.fit(features, x)
@@ -139,20 +126,35 @@ def __main__():
         file.write("id,x,y\n")
         for i in range(len(predict_x)):
             file.write(str(i) + "," + str("%.3f" % predict_x[i]) + "," + str("%.3f" % predict_y[i]) + "\n")
-    '''
 
-    '''
+
+def split_train_test(sector2_1, sector3_5, x_y):
     sector_all = np.column_stack((sector2_1, sector3_5))
-    X_train, X_test, Y_train, Y_test = train_test_split(sector_all, x_y, test_size=0.1, random_state=None)
-    model1, model2 = split_train(X_train, list(Y_train['x']), list(Y_train['y']))
-    predict_x, predict_y = split_predict(model1, model2, X_test)
-    sum = 0.0
-    for i in range(len(predict_x)):
-        sum += math.sqrt((predict_x[i] - list(Y_test['x'])[i]) ** 2 + (predict_y[i] - list(Y_test['y'])[i]) ** 2)
+    repeat_times = 5
+    accuracy = 0.0
+    for i in range(repeat_times):
+        X_train, X_test, Y_train, Y_test = train_test_split(sector_all, x_y, test_size=0.1, random_state=None)
+        model1, model2 = split_train(X_train, list(Y_train['x']), list(Y_train['y']))
+        predict_x, predict_y = split_predict(model1, model2, X_test)
+        sum = 0.0
+        for i in range(len(predict_x)):
+            sum += math.sqrt((predict_x[i] - list(Y_test['x'])[i]) ** 2 + (predict_y[i] - list(Y_test['y'])[i]) ** 2)
         # print(predict_x[i], "\t", list(Y_test['x'])[i], "\t", predict_y[i], "\t", list(Y_test['y'])[i])
-    print(sum / len(predict_x))
+        accuracy += sum / len(predict_x)
+    print(accuracy / repeat_times)
+    return accuracy / repeat_times
 
-    '''
+
+def part_split_train_test(data, x_y):
+    sum = 0
+    repeat_time = 10
+    for i in range(repeat_time):
+        sector2_1, sector3_5 = random_sectors(data, 9)
+        sum += split_train_test(sector2_1, sector3_5, x_y)
+    print("Avg Accuracy:\t", sum / repeat_time, sep="")
+
+
+def save_split_predict(sector2_1, sector3_5, x_y):
     test = pd.read_csv("./testAll.csv")
     sector_all = np.column_stack((sector2_1, sector3_5))
     model1, model2 = split_train(sector_all, list(x_y['x']), list(x_y['y']))
@@ -161,6 +163,46 @@ def __main__():
         file.write("id,x,y\n")
         for i in range(len(predict_x)):
             file.write(str(i) + "," + str("%.3f" % predict_x[i]) + "," + str("%.3f" % predict_y[i]) + "\n")
+
+
+def random_sectors(data, del_sector_num):
+    sector_nums = []
+    for i in range(15):
+        sector_nums.append(i)
+    for i in range(del_sector_num):
+        while True:
+            r = random.randint(0, 15)
+            if r in sector_nums:
+                sector_nums.remove(r)
+                break
+    print(sector_nums)
+    columns = []
+    for num in sector_nums:
+        columns.append("2100" + str(num))
+    sector2_1 = data[columns]
+    columns = []
+    for num in sector_nums:
+        columns.append("3500" + str(num))
+    sector3_5 = data[columns]
+    return sector2_1, sector3_5
+
+
+def __main__():
+    data = pd.read_csv("./dataAll.csv")
+    x = data['x']
+    y = data['y']
+    x_y = data[['x', 'y']]
+
+    # sector2_1, sector3_5 = random_sectors(data)
+
+    # features = sector3_5.values
+    # features = np.column_stack((sector2_1, sector3_5))
+    # model_test(features, x, y)
+    # save_predict(features,x,y)
+
+    # split_train_test(sector2_1, sector3_5, x_y)
+    part_split_train_test(data,x_y)
+    # save_split_predict(sector2_1, sector3_5, x_y)
 
 
 if __name__ == '__main__':
