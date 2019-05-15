@@ -1,9 +1,9 @@
 import pandas as pd
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, Lasso
 from sklearn.model_selection import train_test_split
 from sklearn import svm, tree, neighbors
-from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor, RandomForestClassifier
-from sklearn.neural_network import MLPRegressor, MLPClassifier
+from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor, RandomForestClassifier, GradientBoostingRegressor
+from sklearn.neural_network import MLPRegressor
 import numpy as np
 import copy
 import math
@@ -21,15 +21,15 @@ def accuracy(original_x, predict_x, original_y, predict_y):
     )))
 
 
+# 两层模型算法训练函数
 def split_train(sector_all, x, y):
-    # sector_all = np.column_stack((sector2_1, sector3_5))
-    block_size = 4
-    block_num = int(64 * 32 / (block_size * block_size))
-    model1 = RandomForestClassifier(n_estimators=200)
-    model2 = {}
+    block_size = 4  # 每个分块正方形的边长，单位m
+    block_num = int(64 * 32 / (block_size * block_size))  # 所分块的个数
+    model1 = RandomForestClassifier(n_estimators=200)  # 第一层模型使用随机森林分类器
+    model2 = {}  # 第二次模型使用字典存储
     split_data = {}
     for i in range(block_num):
-        split_data[i] = [[], [], []]
+        split_data[i] = [[], [], []]  # 将训练集分块后存储，0位置存储样本特征向量，1位置存储x值，2位置存储y值
         model2[i] = []
     labels = []
     for i in range(len(x)):
@@ -38,14 +38,9 @@ def split_train(sector_all, x, y):
         split_data[label][0].append(sector_all[i])
         split_data[label][1].append(x[i])
         split_data[label][2].append(y[i])
-    model1 = model1.fit(sector_all, labels)
-    '''
-    for i in split_data:
-        for line in split_data[i]:
-            print(line)
-    '''
+    model1 = model1.fit(sector_all, labels)  # 训练第一层模型
     for label in split_data:
-        model2_x = RandomForestRegressor(n_estimators=200)
+        model2_x = RandomForestRegressor(n_estimators=200)  # 第二层模型使用随机森林回归算法，分别预测x,y
         model2_y = RandomForestRegressor(n_estimators=200)
         if len(split_data[label][0]) != 0 and len(split_data[label][1]) != 0 and len(split_data[label][2]) != 0:
             model2_x = model2_x.fit(split_data[label][0], split_data[label][1])
@@ -72,9 +67,13 @@ def split_predict(model1, model2, sector_all):
 
 
 def test(model, features, x, y):
-    original_x, predict_x = train(copy.deepcopy(model), features, x)
-    original_y, predict_y = train(copy.deepcopy(model), features, y)
-    print("%10s" % ("%.5f" % accuracy(original_x, predict_x, original_y, predict_y)), "m", sep='')
+    acc = 0.0
+    for i in range(5):
+        original_x, predict_x = train(copy.deepcopy(model), features, x)
+        original_y, predict_y = train(copy.deepcopy(model), features, y)
+        acc += accuracy(original_x, predict_x, original_y, predict_y)
+    acc /= 5.0
+    print("%10s" % ("%.5f" % acc), "m", sep='')
     return
 
 
@@ -85,32 +84,40 @@ def train(model, x, y):
 
 
 def model_test(features, x, y):
-    model = MLPRegressor(solver='lbfgs', hidden_layer_sizes=(50, 50, 50, 50), tol=1e-6, max_iter=1000)
-    print("%-25s" % "MLPRegressor:", end="")
-    test(model, features, x, y)
-
     model = LinearRegression()
-    print("%-25s" % "LinearRegression:", end="")
+    print("%-30s" % "LinearRegression:", end="")
     test(model, features, x, y)
 
-    model = svm.SVR(C=100, tol=1e-5, gamma=0.01)
-    print("%-25s" % "SVR:", end="")
+    model = Lasso()
+    print("%-30s" % "Lasso:", end="")
     test(model, features, x, y)
 
-    model = tree.DecisionTreeRegressor()
-    print("%-25s" % "DecisionTreeRegressor:", end="")
+    model = MLPRegressor(solver='lbfgs', hidden_layer_sizes=(50, 50, 50, 50), tol=1e-5, max_iter=500)
+    print("%-30s" % "MLPRegressor:", end="")
     test(model, features, x, y)
 
-    model = RandomForestRegressor(n_estimators=200)
-    print("%-25s" % "RandomForestRegressor:", end="")
-    test(model, features, x, y)
-
-    model = AdaBoostRegressor(n_estimators=50)
-    print("%-25s" % "AdaBoostRegressor:", end="")
+    model = svm.SVR(C=100, tol=1e-5, gamma='scale')
+    print("%-30s" % "SVR:", end="")
     test(model, features, x, y)
 
     model = neighbors.KNeighborsRegressor()
-    print("%-25s" % "KNeighborsRegressor:", end="")
+    print("%-30s" % "KNeighborsRegressor:", end="")
+    test(model, features, x, y)
+
+    model = tree.DecisionTreeRegressor()
+    print("%-30s" % "DecisionTreeRegressor:", end="")
+    test(model, features, x, y)
+
+    model = RandomForestRegressor(n_estimators=200)
+    print("%-30s" % "RandomForestRegressor:", end="")
+    test(model, features, x, y)
+
+    model = AdaBoostRegressor(n_estimators=200)
+    print("%-30s" % "AdaBoostRegressor:", end="")
+    test(model, features, x, y)
+
+    model = GradientBoostingRegressor(n_estimators=400, min_samples_split=3)
+    print("%-30s" % "GradientBoostingRegressor:", end="")
     test(model, features, x, y)
 
 
@@ -193,15 +200,15 @@ def __main__():
     y = data['y']
     x_y = data[['x', 'y']]
 
-    # sector2_1, sector3_5 = random_sectors(data)
+    sector2_1, sector3_5 = random_sectors(data, 0)
 
     # features = sector3_5.values
-    # features = np.column_stack((sector2_1, sector3_5))
-    # model_test(features, x, y)
+    features = np.column_stack((sector2_1, sector3_5))
+    model_test(features, x, y)
     # save_predict(features,x,y)
 
-    # split_train_test(sector2_1, sector3_5, x_y)
-    part_split_train_test(data,x_y)
+    split_train_test(sector2_1, sector3_5, x_y)
+    # part_split_train_test(data, x_y)
     # save_split_predict(sector2_1, sector3_5, x_y)
 
 
